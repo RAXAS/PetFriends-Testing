@@ -78,7 +78,7 @@ def test_successful_update_self_pet_info(name='Мурзик', animal_type='Ко�
     _, auth_key = pf.get_api_key(valid_email, valid_password)
     _, my_pets = pf.get_list_of_pets(auth_key, "my_pets")
 
-    # Еслди список не пустой, то пробуем обновить его имя, тип и возраст
+    # Если список не пустой, то пробуем обновить его имя, тип и возраст
     if len(my_pets['pets']) > 0:
         status, result = pf.update_pet_info(auth_key, my_pets['pets'][0]['id'], name, animal_type, age)
 
@@ -88,3 +88,33 @@ def test_successful_update_self_pet_info(name='Мурзик', animal_type='Ко�
     else:
         # если спиок питомцев пустой, то выкидываем исключение с текстом об отсутствии своих питомцев
         raise Exception("There is no my pets")
+
+# Тест №1 Добавляем питомца без фото
+def test_add_new_pet_simple(name='Барбоскин', animal_type='двортерьер', age='4'):
+    """Проверяем что можно добавить питомца с корректными данными без фото"""
+
+    # Запрашиваем ключ api и сохраняем в переменую auth_key
+    _, auth_key = pf.get_api_key(valid_email, valid_password)
+
+    # Добавляем питомца
+    status, result = pf.add_new_pet_simple(auth_key, name, animal_type, age)
+
+    # Сверяем полученный ответ с ожидаемым результатом
+    assert status == 200
+    assert result['name'] == name
+
+# Тест №2
+def test_add_photo_of_pet(pet_photo='images/cat1.jpg'):
+    """Проверяем возможность добавления фото в созданного питомца без фото"""
+
+    # Получаем ключ auth_key и список своих питомцев
+    _, auth_key = pf.get_api_key(valid_email, valid_password)
+    _, my_pets = pf.get_list_of_pets(auth_key, "my_pets")
+
+    # Берем первого питомца и добавляем его фото
+    status, result = pf.add_photo_of_pet(auth_key, my_pets['pets'][0]['id'], pet_photo)
+
+    # Проверяем что статус ответа = 200 и что у питомца есть фото
+    assert status == 200
+    assert result['pet_photo'] != ''
+
