@@ -45,8 +45,7 @@ class PetFriends:
             result = res.text
         return status, result
 
-    def add_new_pet(self, auth_key: json, name: str, animal_type: str,
-                    age: str, pet_photo: str) -> json:
+    def add_new_pet(self, auth_key: json, name: str, animal_type: str, age: str, pet_photo: str) -> json:
         """Метод отправляет (постит) на сервер данные о добавляемом питомце и возвращает статус
         запроса на сервер и результат в формате JSON с данными добавленного питомца"""
 
@@ -55,7 +54,7 @@ class PetFriends:
                 'name': name,
                 'animal_type': animal_type,
                 'age': age,
-                'pet_photo': (pet_photo, open(pet_photo, 'rb'), 'image/jpeg')
+                'pet_photo': (pet_photo, open(pet_photo, 'rb'), 'image/jpg')
             })
         headers = {'auth_key': auth_key['key'], 'Content-Type': data.content_type}
 
@@ -131,14 +130,15 @@ class PetFriends:
 
     def add_photo_of_pet(self, auth_key: json, pet_id: str, pet_photo: str) -> json:
         """Метод отправляет запрос на сервер о обновлении данных питомуа по указанному ID и
-        возвращает статус запроса и result в формате JSON с обновлённыи данными питомца"""
+        возвращает статус запроса и result в формате JSON с обновлёнными данными питомца"""
 
-        headers = {'auth_key': auth_key['key']}
-        data = {
-            'pet_photo': (pet_photo, open(pet_photo, 'rb'), 'image/jpeg')
-        }
+        data = MultipartEncoder(
+            fields={
+                'pet_photo': (pet_photo, open(pet_photo, 'rb'), 'image/jpg')
+            })
 
-        res = requests.put(self.base_url + 'api/pets/set_photo/' + pet_id, headers=headers, data=data)
+        headers = {'auth_key': auth_key['key'], 'Content-Type': data.content_type}
+        res = requests.post(self.base_url + 'api/pets/set_photo/' + pet_id, headers=headers, data=data)
         status = res.status_code
         result = ""
         try:
